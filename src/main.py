@@ -4,6 +4,7 @@ import os
 sys.path.append(os.path.dirname(__file__))
 
 from hevy.client import HevyClient
+from hevy.exercise_resolver import ExerciseResolver
 from ai.coach import Coach
 
 
@@ -17,24 +18,49 @@ def main():
         "restrictions": []
     }
 
-    coach = Coach()
     hevy = HevyClient()
 
-    workout = coach.create_workout(student_profile)
+    resolver = ExerciseResolver(hevy)
 
-    routine_data = {
-        "routine": {
-            "title": workout["title"],
-            "folder_id": None,
-            "notes": "Rotina criada pelo Hevy AI Coach.",
-            "exercises": workout["exercises"]
+    coach = Coach(resolver)
+
+    exercises_data = [
+        {
+            "name": "Leg Extension",
+            "equipment": "machine",
+            "muscle_group": "quadriceps"
+        },
+        {
+            "name": "Squat",
+            "equipment": "barbell",
+            "muscle_group": "quadriceps"
+        },
+        {
+            "name": "Romanian Deadlift",
+            "equipment": "barbell",
+            "muscle_group": "hamstrings"
         }
-    }
+    ]
 
-    created_routine = hevy.create_routine(routine_data)
+    workout_plan = coach.generate_workout_plan(
+        student_profile,
+        exercises_data
+    )
 
-    print("Rotina criada com sucesso!")
-    print(created_routine)
+    hevy_workout = coach.build_hevy_workout(
+        workout_plan
+    )
+
+    print("Plano de treino criado!")
+    print()
+    print("Título:", hevy_workout["title"])
+    print()
+
+    for exercise in hevy_workout["exercises"]:
+        print("Exercício:", exercise["title"])
+        print("ID:", exercise["exercise_template_id"])
+        print("Séries:", len(exercise["sets"]))
+        print()
 
 
 if __name__ == "__main__":

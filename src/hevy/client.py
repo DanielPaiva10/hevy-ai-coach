@@ -45,6 +45,7 @@ class HevyClient:
         search_name = exercise_name.lower().strip()
 
         page = 1
+        best_match = None
 
         while True:
             data = self.get_exercise_templates(
@@ -58,15 +59,21 @@ class HevyClient:
             for template in templates:
                 title = template["title"].lower().strip()
 
-                if search_name in title:
+                # 1. Correspondência exata
+                if title == search_name:
                     return template
+
+                # 2. O título começa com o nome procurado
+                if title.startswith(search_name):
+                    if best_match is None:
+                        best_match = template
 
             if page >= page_count:
                 break
 
             page += 1
 
-        return None
+        return best_match
 
     def create_routine(self, routine_data):
         url = "https://api.hevyapp.com/v1/routines"
