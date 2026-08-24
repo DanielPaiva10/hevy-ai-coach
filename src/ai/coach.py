@@ -20,38 +20,43 @@ class Coach:
                 muscle_group=exercise_data.get("muscle_group")
             )
 
+            if exercise is None:
+                raise ValueError(
+                    f"Exercício não encontrado: {exercise_data['name']}"
+                )
+
+            sets = self._build_sets(exercise_data)
+
             exercises.append({
                 "exercise_template_id": exercise["id"],
-                "title": exercise["title"],
-                "sets": [
-                    {
-                        "type": "normal",
-                        "weight_kg": 0,
-                        "reps": 10,
-                        "distance_meters": None,
-                        "duration_seconds": None,
-                        "custom_metric": None
-                    },
-                    {
-                        "type": "normal",
-                        "weight_kg": 0,
-                        "reps": 10,
-                        "distance_meters": None,
-                        "duration_seconds": None,
-                        "custom_metric": None
-                    },
-                    {
-                        "type": "normal",
-                        "weight_kg": 0,
-                        "reps": 10,
-                        "distance_meters": None,
-                        "duration_seconds": None,
-                        "custom_metric": None
-                    }
-                ]
+                "sets": sets
             })
 
         return {
             "title": workout_plan["title"],
             "exercises": exercises
         }
+
+    def _build_sets(self, exercise_data):
+        number_of_sets = exercise_data["sets"]
+        reps = exercise_data["reps"]
+        weight_kg = exercise_data.get("weight_kg", 0)
+
+        if isinstance(reps, dict):
+            reps_value = reps["max"]
+        else:
+            reps_value = reps
+
+        sets = []
+
+        for _ in range(number_of_sets):
+            sets.append({
+                "type": "normal",
+                "weight_kg": weight_kg,
+                "reps": reps_value,
+                "distance_meters": None,
+                "duration_seconds": None,
+                "custom_metric": None
+            })
+
+        return sets

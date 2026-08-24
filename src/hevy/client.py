@@ -1,6 +1,8 @@
 import os
 import requests
+
 from dotenv import load_dotenv
+
 
 load_dotenv()
 
@@ -10,7 +12,9 @@ class HevyClient:
         self.api_key = os.getenv("HEVY_API_KEY")
 
         if not self.api_key:
-            raise ValueError("HEVY_API_KEY não encontrada no arquivo .env")
+            raise ValueError(
+                "HEVY_API_KEY não encontrada no arquivo .env"
+            )
 
         self.session = requests.Session()
 
@@ -22,6 +26,7 @@ class HevyClient:
         url = "https://api.hevyapp.com/v1/workouts"
 
         response = self.session.get(url)
+
         response.raise_for_status()
 
         return response.json()
@@ -53,17 +58,24 @@ class HevyClient:
                 page_size=100
             )
 
-            templates = data.get("exercise_templates", [])
-            page_count = data.get("page_count", 1)
+            templates = data.get(
+                "exercise_templates",
+                []
+            )
+
+            page_count = data.get(
+                "page_count",
+                1
+            )
 
             for template in templates:
                 title = template["title"].lower().strip()
 
-                # 1. Correspondência exata
+                
                 if title == search_name:
                     return template
 
-                # 2. O título começa com o nome procurado
+                
                 if title.startswith(search_name):
                     if best_match is None:
                         best_match = template
@@ -82,6 +94,11 @@ class HevyClient:
             url,
             json=routine_data
         )
+
+        if not response.ok:
+            print("Erro ao criar rotina no Hevy:")
+            print("Status:", response.status_code)
+            print("Resposta:", response.text)
 
         response.raise_for_status()
 
